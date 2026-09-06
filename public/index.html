@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YuiAPI OFC</title>
+  <meta name="description" content="YuiAPI OFC - API para YuiBot-MD">
+  <style>
+    :root{color-scheme:dark;--bg:#070812;--card:#101322;--text:#f5f7ff;--muted:#a9afc3;--accent:#c77dff;--accent2:#7c5cff;--border:#252a42}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 50% 0,#24133b 0,#0d0e1a 38%,var(--bg) 75%);color:var(--text);display:grid;place-items:center;padding:24px}
+    main{width:min(900px,100%);background:rgba(16,19,34,.86);border:1px solid var(--border);border-radius:28px;padding:42px;box-shadow:0 24px 80px #0008;backdrop-filter:blur(14px)}
+    .badge{display:inline-flex;padding:8px 13px;border:1px solid #8d6cff55;border-radius:999px;color:#e4d7ff;background:#8d6cff12;font-size:13px}
+    h1{font-size:clamp(42px,9vw,78px);line-height:.95;margin:22px 0 14px;letter-spacing:-4px}
+    h1 span{color:var(--accent)}
+    p{color:var(--muted);font-size:17px;line-height:1.7;max-width:680px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:30px}
+    .card{padding:20px;border:1px solid var(--border);border-radius:18px;background:#0b0e1a}
+    .card strong{display:block;margin-bottom:7px}.ok{color:#74e6a1}.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#d8ccff}
+    footer{margin-top:34px;color:#737a91;font-size:13px}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">🌸 YuiBot-MD • API OFC</div>
+    <h1>Yui<span>API</span></h1>
+    <p>Una base limpia y estable para los servicios de YuiBot-MD. Diseñada para crecer por módulos, con una interfaz inspirada en el estilo Yui y sin Prisma ni una base de datos obligatoria.</p>
+    <section class="grid">
+      <div class="card"><strong class="ok">● Online</strong><span>Servidor operativo</span></div>
+      <div class="card"><strong>Node.js</strong><span>Express + arquitectura modular</span></div>
+      <div class="card"><strong>Health</strong><span class="code">/api/health</span></div>
+      <div class="card"><strong>API</strong><span class="code">/api</span></div>
+    </section>
+    <footer>YuiAPI OFC · Base 1.0.0 · Proyecto para YuiBot-MD</footer>
+  </main>
+</body>
+</html>
