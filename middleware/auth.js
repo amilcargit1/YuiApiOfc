@@ -28,6 +28,18 @@ function authHandler(req, res, next) {
     return next();
   }
 
+  const keyUser = apiKey ? findUser('key', apiKey) : null;
+  if (keyUser) {
+    if (keyUser.vipExpires && new Date() > new Date(keyUser.vipExpires)) {
+      updateUser(keyUser.id, { role: 'user', plan: 'free', limit: 100, vipSince: null, vipExpires: null });
+      keyUser.role = 'user'; keyUser.plan = 'free'; keyUser.limit = 100; keyUser.vipSince = null; keyUser.vipExpires = null;
+    }
+    req.apiKey = keyUser.key;
+    req.apiUser = keyUser;
+    req.authType = 'api-key';
+    return next();
+  }
+
   const token = getJwt(req);
   const secret = process.env.YUI_JWT_SECRET || process.env.JWT_SECRET || '';
   if (!token || !secret) return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Autenticación requerida. Usa API key o Bearer token.' });
@@ -35,19 +47,17 @@ function authHandler(req, res, next) {
   try {
     const payload = jwt.verify(token, secret);
     if (payload.sub === 'env-admin' && process.env.YUI_ADMIN_EMAIL) {
-      req.apiUser = { id: 'env-admin', username: process.env.YUI_ADMIN_USERNAME || 'Yui', email: process.env.YUI_ADMIN_EMAIL, role: 'admin', plan: 'admin', limit: 1000000, source: 'jwt' };
+      req.apiUser = { id: 'env-admin', username: process.env.YUI_ADMIN_USERNAME || 'Yui', email: process.env.YUI_ADMIN_EMAIL, key: process.env.YUI_API_KEY || '', role: 'admin', plan: 'admin', limit: 1000000, source: 'jwt' };
       req.authType = 'jwt';
       return next();
     }
 
     const user = findUser('id', payload.sub);
     if (!user) return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Sesión inválida.' });
-
     if (user.vipExpires && new Date() > new Date(user.vipExpires)) {
       updateUser(user.id, { role: 'user', plan: 'free', limit: 100, vipSince: null, vipExpires: null });
       user.role = 'user'; user.plan = 'free'; user.limit = 100; user.vipSince = null; user.vipExpires = null;
     }
-
     req.apiKey = user.key;
     req.apiUser = user;
     req.authType = 'jwt';
