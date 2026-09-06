@@ -7,121 +7,27 @@
   <meta name="description" content="YuiAPI OFC - API para YuiBot-MD">
   <style>
     :root{color-scheme:dark;--bg:#070812;--card:#101322;--card2:#0b0e1a;--text:#f5f7ff;--muted:#a9afc3;--accent:#c77dff;--accent2:#7c5cff;--border:#252a42;--ok:#74e6a1;--danger:#ff7b9c}
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 50% 0,#24133b 0,#0d0e1a 38%,var(--bg) 75%);color:var(--text);padding:24px}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 50% 0,#24133b 0,#0d0e1a 38%,var(--bg) 75%);color:var(--text);padding:24px}
     main{width:min(1100px,100%);margin:0 auto;background:rgba(16,19,34,.88);border:1px solid var(--border);border-radius:28px;padding:42px;box-shadow:0 24px 80px #0008;backdrop-filter:blur(14px)}
-    .badge{display:inline-flex;padding:8px 13px;border:1px solid #8d6cff55;border-radius:999px;color:#e4d7ff;background:#8d6cff12;font-size:13px}
-    h1{font-size:clamp(42px,9vw,78px);line-height:.95;margin:22px 0 14px;letter-spacing:-4px}
-    h1 span{color:var(--accent)}
-    h2{font-size:30px;margin:0 0 8px}
-    p{color:var(--muted);font-size:17px;line-height:1.7;max-width:760px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-    .nav{display:flex;gap:10px;flex-wrap:wrap}
-    .nav a{color:#ddd3ff;text-decoration:none;border:1px solid var(--border);background:var(--card2);padding:9px 13px;border-radius:12px;font-size:14px}
-    .nav a:hover{border-color:#9c75ff88}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:30px}
-    .card{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--card2)}
-    .card strong{display:block;margin-bottom:7px}.ok{color:var(--ok)}.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#d8ccff}
-    .endpoints{margin-top:54px;padding-top:34px;border-top:1px solid var(--border)}
-    .section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
-    .section-head p{margin:0;font-size:14px}
-    .filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
-    .filter{border:1px solid var(--border);background:var(--card2);color:var(--muted);border-radius:999px;padding:8px 13px;cursor:pointer;font:inherit}
-    .filter.active,.filter:hover{color:var(--text);border-color:#9c75ff88;background:#8d6cff18}
-    #endpointList{display:grid;gap:12px}
-    .endpoint{display:grid;grid-template-columns:110px 1fr auto;gap:16px;align-items:center;padding:17px 18px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(90deg,#0b0e1a,#101322);transition:.18s ease}
-    .endpoint:hover{transform:translateY(-1px);border-color:#9c75ff66}
-    .method{font-weight:800;font-size:12px;letter-spacing:.8px;padding:7px 9px;border-radius:8px;text-align:center;background:#74e6a11a;color:var(--ok);border:1px solid #74e6a133}
-    .endpoint-path{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#eee8ff;word-break:break-all}
-    .endpoint-cat{font-size:12px;color:var(--muted);margin-top:5px}
-    .auth{font-size:12px;color:#ffd7e2;border:1px solid #ff7b9c33;background:#ff7b9c0d;padding:6px 9px;border-radius:999px;white-space:nowrap}
-    .empty{padding:22px;border:1px dashed var(--border);border-radius:16px;color:var(--muted);text-align:center}
-    .stats{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13px}
-    .stats b{color:var(--text)}
-    footer{margin-top:34px;color:#737a91;font-size:13px}
-    @media(max-width:650px){main{padding:26px 18px;border-radius:22px}.endpoint{grid-template-columns:1fr}.auth{width:max-content}.method{width:100px}}
+    .badge{display:inline-flex;padding:8px 13px;border:1px solid #8d6cff55;border-radius:999px;color:#e4d7ff;background:#8d6cff12;font-size:13px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.nav{display:flex;gap:8px;flex-wrap:wrap}.nav a{color:#ddd3ff;text-decoration:none;border:1px solid var(--border);background:var(--card2);padding:9px 13px;border-radius:12px;font-size:14px}.nav a:hover{border-color:#9c75ff88}
+    h1{font-size:clamp(42px,9vw,78px);line-height:.95;margin:22px 0 14px;letter-spacing:-4px}h1 span{color:var(--accent)}h2{font-size:30px;margin:0 0 8px}p{color:var(--muted);font-size:17px;line-height:1.7;max-width:760px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-top:30px}.card{padding:20px;border:1px solid var(--border);border-radius:18px;background:var(--card2)}.card strong{display:block;margin-bottom:7px}.ok{color:var(--ok)}.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#d8ccff}
+    .authbox{margin-top:22px;padding:20px;border:1px solid #8d6cff33;border-radius:18px;background:#8d6cff0b}.authbox a{display:inline-block;margin:5px 8px 5px 0;color:#fff;text-decoration:none;background:#8d6cff22;border:1px solid #8d6cff55;padding:10px 14px;border-radius:12px}.endpoints{margin-top:54px;padding-top:34px;border-top:1px solid var(--border)}.section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}.section-head p{margin:0;font-size:14px}.filters{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}.filter{border:1px solid var(--border);background:var(--card2);color:var(--muted);border-radius:999px;padding:8px 13px;cursor:pointer;font:inherit}.filter.active,.filter:hover{color:var(--text);border-color:#9c75ff88;background:#8d6cff18}#endpointList{display:grid;gap:12px}.endpoint{display:grid;grid-template-columns:110px 1fr auto;gap:16px;align-items:center;padding:17px 18px;border:1px solid var(--border);border-radius:16px;background:linear-gradient(90deg,#0b0e1a,#101322);transition:.18s ease}.endpoint:hover{transform:translateY(-1px);border-color:#9c75ff66}.method{font-weight:800;font-size:12px;letter-spacing:.8px;padding:7px 9px;border-radius:8px;text-align:center;background:#74e6a11a;color:var(--ok);border:1px solid #74e6a133}.endpoint-path{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#eee8ff;word-break:break-all}.endpoint-cat{font-size:12px;color:var(--muted);margin-top:5px}.auth{font-size:12px;color:#ffd7e2;border:1px solid #ff7b9c33;background:#ff7b9c0d;padding:6px 9px;border-radius:999px;white-space:nowrap}.empty{padding:22px;border:1px dashed var(--border);border-radius:16px;color:var(--muted);text-align:center}.stats{display:flex;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:13px}.stats b{color:var(--text)}footer{margin-top:34px;color:#737a91;font-size:13px}@media(max-width:650px){main{padding:26px 18px;border-radius:22px}.endpoint{grid-template-columns:1fr}.auth{width:max-content}.method{width:100px}}
   </style>
 </head>
 <body>
   <main>
-    <div class="topbar">
-      <div class="badge">🌸 YuiBot-MD • API OFC</div>
-      <nav class="nav"><a href="#endpoints">Endpoints</a><a href="/api">API JSON</a><a href="/api/health">Health</a></nav>
-    </div>
-
+    <div class="topbar"><div class="badge">🌸 YuiBot-MD • API OFC</div><nav class="nav"><a href="#endpoints">Endpoints</a><a href="/login.html">Iniciar sesión</a><a href="/register.html">Registrarse</a><a href="/profile.html">Mi perfil</a><a href="/api">API JSON</a><a href="/api/health">Health</a></nav></div>
     <h1>Yui<span>API</span></h1>
-    <p>Una base limpia y estable para los servicios de YuiBot-MD. Diseñada para crecer por módulos, con identidad Yui, autenticación por API key y sin Prisma ni una base de datos obligatoria.</p>
-
-    <section class="grid">
-      <div class="card"><strong class="ok">● Online</strong><span>Servidor operativo</span></div>
-      <div class="card"><strong>Node.js</strong><span>Express + arquitectura modular</span></div>
-      <div class="card"><strong>Health</strong><span class="code">/api/health</span></div>
-      <div class="card"><strong>API</strong><span class="code">/api</span></div>
-    </section>
-
-    <section class="endpoints" id="endpoints">
-      <div class="section-head">
-        <div>
-          <h2>🌸 Todos los Endpoints</h2>
-          <p>Catálogo de las rutas disponibles en YuiAPI OFC.</p>
-        </div>
-        <div class="stats"><span><b id="total">0</b> endpoints</span><span>•</span><span>🔐 protegidos con API key</span></div>
-      </div>
-      <div class="filters" id="filters"></div>
-      <div id="endpointList"><div class="empty">Cargando endpoints de YuiAPI...</div></div>
-    </section>
-
-    <footer>YuiAPI OFC · Yui · Base 1.1.0 · Proyecto para YuiBot-MD</footer>
+    <p>La plataforma de servicios de YuiBot-MD. Registro, inicio de sesión, sesiones JWT, API keys, perfiles, estadísticas y endpoints modulares, todo con identidad Yui y sin Prisma.</p>
+    <section class="grid"><div class="card"><strong class="ok">● Online</strong><span>Servidor operativo</span></div><div class="card"><strong>🔐 Auth</strong><span>Registro + Login + JWT</span></div><div class="card"><strong>Health</strong><span class="code">/api/health</span></div><div class="card"><strong>API</strong><span class="code">/api</span></div></section>
+    <section class="authbox"><strong>🌸 Cuenta Yui</strong><p style="margin:7px 0 12px;font-size:14px">Crea tu cuenta para obtener una API key personal, consultar tus requests y administrar tu perfil.</p><a href="/register.html">Crear cuenta</a><a href="/login.html">Iniciar sesión</a><a href="/profile.html">Ver perfil</a></section>
+    <section class="endpoints" id="endpoints"><div class="section-head"><div><h2>🌸 Todos los Endpoints</h2><p>Catálogo de las rutas disponibles en YuiAPI OFC.</p></div><div class="stats"><span><b id="total">0</b> endpoints</span><span>•</span><span>🔐 protegidos</span></div></div><div class="filters" id="filters"></div><div id="endpointList"><div class="empty">Cargando endpoints de YuiAPI...</div></div></section>
+    <footer>YuiAPI OFC · Yui · Base 1.2.0 · Proyecto para YuiBot-MD</footer>
   </main>
-
-  <script>
-    const fallback = [
-      ['GET','/api','core',false],['GET','/api/health','core',false],['GET','/api/info','core',false],
-      ['GET','/api/auth/register','auth',false],['GET','/api/auth/login','auth',false],
-      ['GET','/api/ai/gemini','ai',true],['GET','/api/tools/qr','tools',true],['GET','/api/tools/ssweb','tools',true],
-      ['GET','/api/search/pinterest','search',true],['GET','/api/search/tiktok','search',true],
-      ['GET','/api/download/facebook','download',true],['GET','/api/download/instagram','download',true],
-      ['GET','/api/download/twitter','download',true],['GET','/api/download/pinterest','download',true],
-      ['GET','/api/download/tiktok','download',true],['GET','/api/download/ytaudio','download',true],['GET','/api/download/ytvideo','download',true]
-    ];
-
-    let endpoints = [];
-    let active = 'all';
-
-    function normalize(data){
-      const list = Array.isArray(data?.endpoints) ? data.endpoints : [];
-      return list.map(x => ({method:String(x.method||'GET').toUpperCase(),path:x.path||'/',category:x.category||'core',auth:Boolean(x.auth)}));
-    }
-
-    function render(){
-      const list = active === 'all' ? endpoints : endpoints.filter(x => x.category === active);
-      document.querySelector('#total').textContent = endpoints.length;
-      const el = document.querySelector('#endpointList');
-      if (!list.length){ el.innerHTML = '<div class="empty">No hay endpoints en esta categoría.</div>'; return; }
-      el.innerHTML = list.map(x => `<article class="endpoint"><span class="method">${escapeHtml(x.method)}</span><div><div class="endpoint-path">${escapeHtml(x.path)}</div><div class="endpoint-cat">🌸 ${escapeHtml(x.category)}</div></div>${x.auth ? '<span class="auth">🔐 API KEY</span>' : '<span></span>'}</article>`).join('');
-    }
-
-    function renderFilters(){
-      const cats = [...new Set(endpoints.map(x => x.category))].sort();
-      document.querySelector('#filters').innerHTML = ['all',...cats].map(cat => `<button class="filter ${cat===active?'active':''}" data-cat="${escapeHtml(cat)}">${cat==='all'?'Todos':cat}</button>`).join('');
-      document.querySelectorAll('.filter').forEach(btn => btn.addEventListener('click', () => { active=btn.dataset.cat; renderFilters(); render(); }));
-    }
-
-    function escapeHtml(value){return String(value).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
-
-    async function load(){
-      try {
-        const response = await fetch('/api/info', {headers:{accept:'application/json'}});
-        if (!response.ok) throw new Error('info unavailable');
-        endpoints = normalize(await response.json());
-        if (!endpoints.length) endpoints = fallback.map(([method,path,category,auth])=>({method,path,category,auth}));
-      } catch (_) {
-        endpoints = fallback.map(([method,path,category,auth])=>({method,path,category,auth}));
-      }
-      renderFilters(); render();
-    }
-    load();
-  </script>
-</body>
-</html>
+<script>
+const fallback=[['GET','/api','core',false],['GET','/api/health','core',false],['GET','/api/info','core',false],['GET','/api/auth/status','auth',false],['POST','/api/auth/register','auth',false],['POST','/api/auth/login','auth',false],['POST','/api/auth/logout','auth',true],['GET','/api/auth/me','auth',true],['PUT','/api/auth/profile','auth',true],['GET','/api/auth/stats','auth',false],['GET','/api/auth/dashboard-global','auth',false],['GET','/api/auth/admin/all','auth-admin',true],['POST','/api/auth/admin/update','auth-admin',true],['POST','/api/auth/admin/delete','auth-admin',true],['GET','/api/ai/gemini','ai',true],['GET','/api/tools/qr','tools',true],['GET','/api/tools/ssweb','tools',true],['GET','/api/search/pinterest','search',true],['GET','/api/search/tiktok','search',true],['GET','/api/download/facebook','download',true],['GET','/api/download/instagram','download',true],['GET','/api/download/twitter','download',true],['GET','/api/download/pinterest','download',true],['GET','/api/download/tiktok','download',true],['GET','/api/download/ytaudio','download',true],['GET','/api/download/ytvideo','download',true]];
+let endpoints=[],active='all';const esc=v=>String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+function render(){const list=active==='all'?endpoints:endpoints.filter(x=>x.category===active);document.querySelector('#total').textContent=endpoints.length;document.querySelector('#endpointList').innerHTML=list.length?list.map(x=>`<article class="endpoint"><span class="method">${esc(x.method)}</span><div><div class="endpoint-path">${esc(x.path)}</div><div class="endpoint-cat">🌸 ${esc(x.category)}</div></div>${x.auth?'<span class="auth">🔐 AUTH</span>':'<span></span>'}</article>`).join(''):'<div class="empty">No hay endpoints en esta categoría.</div>'}
+function filters(){const cats=[...new Set(endpoints.map(x=>x.category))].sort();document.querySelector('#filters').innerHTML=['all',...cats].map(c=>`<button class="filter ${c===active?'active':''}" data-cat="${esc(c)}">${c==='all'?'Todos':esc(c)}</button>`).join('');document.querySelectorAll('.filter').forEach(b=>b.onclick=()=>{active=b.dataset.cat;filters();render()})}
+async function load(){try{const r=await fetch('/api/info');if(!r.ok)throw Error();const d=await r.json();endpoints=(d.endpoints||[]).map(x=>({method:String(x.method||'GET').toUpperCase(),path:x.path||'/',category:x.category||'core',auth:Boolean(x.auth)}));if(!endpoints.length)throw Error()}catch(_){endpoints=fallback.map(([method,path,category,auth])=>({method,path,category,auth}))}filters();render()}load();
+</script></body></html>
