@@ -4,24 +4,19 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const crypto = require('node:crypto');
 const jwt = require('jsonwebtoken');
+const { getJwtSecret, isConfigured } = require('../lib/jwt');
 const { authHandler, adminOnly } = require('../middleware/auth');
 const { findUser, createUser, updateUser, deleteUser, getAllUsers, sanitizeUser } = require('../lib/store');
 
 const router = express.Router();
 const startTime = Date.now();
 
-function jwtSecret() {
-  return process.env.YUI_JWT_SECRET || process.env.JWT_SECRET || '';
-}
-
 function makeKey() {
   return `yui-${crypto.randomBytes(10).toString('hex')}`;
 }
 
 function issueToken(user) {
-  const secret = jwtSecret();
-  if (!secret) throw new Error('YUI_JWT_SECRET no está configurado.');
-  return jwt.sign({ sub: user.id, role: user.role, plan: user.plan, creator: 'YuiAPI' }, secret, { expiresIn: process.env.YUI_SESSION_EXPIRES || '7d' });
+  return jwt.sign({ sub: user.id, role: user.role, plan: user.plan, creator: 'YuiAPI' }, getJwtSecret(), { expiresIn: process.env.YUI_SESSION_EXPIRES || '7d' });
 }
 
 function publicUser(user) {
@@ -55,9 +50,11 @@ router.get('/status', (req, res) => {
     authentication: ['YUI_API_KEY', 'Bearer JWT'],
     registration: true,
     sessions: true,
-    jwtConfigured: Boolean(jwtSecret()),
+    jwtConfigured: isConfigured(),
+    jwtMode: isConfigured() ? 'environment-secret' : 'runtime-secret',
     apiKeyConfigured: Boolean(process.env.YUI_API_KEY || process.env.API_KEY),
-    message: 'YuiAPI tiene registro, inicio de sesión y sesiones JWT.'
+    publicApi: true,
+    message: 'YuiAPI tiene registro, inicio de sesión y sesiones JWT. La API pública no exige cuenta.'
   });
 });
 
@@ -90,9 +87,8 @@ router.post('/login', async (req, res) => {
   const adminEmail = String(process.env.YUI_ADMIN_EMAIL || '').trim().toLowerCase();
   const adminPassword = String(process.env.YUI_ADMIN_PASSWORD || '');
   if (adminEmail && adminPassword && email === adminEmail && password === adminPassword) {
-    if (!jwtSecret()) return res.status(503).json({ status: false, creator: 'YuiAPI', error: 'YUI_JWT_SECRET no está configurado.' });
     const admin = { id: 'env-admin', username: process.env.YUI_ADMIN_USERNAME || 'Yui', email: adminEmail, key: process.env.YUI_API_KEY || '', role: 'admin', plan: 'admin', limit: 1000000 };
-    const token = jwt.sign({ sub: admin.id, role: 'admin', plan: 'admin', creator: 'YuiAPI' }, jwtSecret(), { expiresIn: process.env.YUI_SESSION_EXPIRES || '7d' });
+    const token = issueToken(admin);
     return res.json({ status: true, creator: 'YuiAPI', message: 'Inicio de sesión de administrador exitoso.', token, data: admin });
   }
 
@@ -112,10 +108,12 @@ router.post('/logout', authHandler, (req, res) => {
 });
 
 router.get('/me', authHandler, (req, res) => {
+  if (!req.apiUser) return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Inicia sesión para consultar tu perfil.' });
   res.json({ status: true, creator: 'YuiAPI', data: req.apiUser.id === 'env-admin' ? req.apiUser : publicUser(req.apiUser) });
 });
 
 router.put('/profile', authHandler, async (req, res) => {
+  if (!req.apiUser) return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Inicia sesión para modificar tu perfil.' });
   if (req.apiUser.id === 'env-admin') return res.status(403).json({ status: false, creator: 'YuiAPI', error: 'El administrador configurado por Render se modifica mediante variables de entorno.' });
   const patch = {};
   if (req.body?.username !== undefined) {
@@ -144,10 +142,10 @@ router.put('/profile', authHandler, async (req, res) => {
 
 router.get('/stats', (req, res) => {
   const users = getAllUsers();
-  res.json({ status: true, creator: 'YuiAPI', users: users.length, endpoints: 21, uptime: Math.floor((Date.now() - startTime) / 1000), mode: 'JWT + API key' });
+  res.json({ status: true, creator: 'YuiAPI', users: users.length, endpoints: 26, uptime: Math.floor((Date.now() - startTime) / 1000), mode: 'Public + JWT + API key' });
 });
 
-router.get('/dashboard-global', (req, res) => {
+router.get('/dashboard-global', authHandler, adminOnly, (req, res) => {
   const users = getAllUsers();
   const globalRequests = users.reduce((sum, user) => sum + (user.totalRequest || 0), 0);
   const top5 = users.filter(user => user.totalRequest > 0).sort((a, b) => b.totalRequest - a.totalRequest).slice(0, 5).map(user => ({ username: user.username, total: user.totalRequest }));
