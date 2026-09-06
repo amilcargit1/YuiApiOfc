@@ -4,7 +4,7 @@
 
 ### API oficial para el ecosistema YuiBot-MD
 
-**Simple · Modular · Estable · Sin Prisma**
+**Simple · Modular · Estable · Sin Prisma · Todo a nombre de Yui**
 
 </div>
 
@@ -12,24 +12,68 @@
 
 ## ✨ Sobre el proyecto
 
-YuiAPI OFC toma como referencia la organización general de una API multi-herramientas como DvWilkerOFC, pero el código de este repositorio es una implementación propia y está orientado al estilo y ecosistema de **YuiBot-MD**.
+YuiAPI OFC usa como referencia la organización general de una API multi-herramientas como DvWilkerOFC, pero la implementación de este repositorio es propia y está adaptada al estilo **YuiBot-MD**.
 
-La primera etapa prioriza una cosa: **que Render pueda iniciar la API sin errores innecesarios**.
+La base está pensada para **Render**, con Express, Node.js y módulos independientes. No utiliza Prisma, ORM ni PostgreSQL obligatorio.
 
-## 🧩 Características
+## 🧩 Módulos incluidos
 
-- Node.js + Express
-- Arquitectura modular por rutas
-- Página principal con estilo YuiBot-MD
-- Endpoint `/api`
-- Endpoint `/api/health`
-- Endpoint `/api/info`
-- Manejo centralizado de 404 y errores
-- Apagado limpio con SIGTERM/SIGINT
-- Compatible con Render
-- ❌ Sin Prisma
-- ❌ Sin PostgreSQL obligatorio
-- ❌ Sin ORM
+- 🌸 `auth` — estado y autenticación por API key
+- 🤖 `ai` — Gemini mediante API oficial y variable `GEMINI_API_KEY`
+- 🛠️ `tools` — QR y captura web
+- 🔎 `search` — Pinterest y TikTok
+- 📥 `download` — Facebook, Instagram, X/Twitter, Pinterest, TikTok y YouTube
+- ❤️ `health` — estado del servicio
+- 📚 `info` — catálogo de endpoints
+
+## 🔐 API key
+
+Los endpoints de herramientas están protegidos. Configura en Render:
+
+```env
+YUI_API_KEY=tu_llave_privada
+GEMINI_API_KEY=tu_llave_de_gemini
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+También se acepta `Authorization: Bearer TU_LLAVE` o `x-api-key: TU_LLAVE`.
+
+## 📡 Rutas principales
+
+| Método | Ruta | Auth |
+|---|---|---|
+| GET | `/api` | No |
+| GET | `/api/health` | No |
+| GET | `/api/info` | No |
+| GET | `/api/auth/status` | No |
+| GET | `/api/ai/gemini?text=Hola` | Sí |
+| GET | `/api/tools/qr?text=Hola` | Sí |
+| GET | `/api/tools/ssweb?url=https://example.com` | Sí |
+| GET | `/api/search/pinterest?query=anime` | Sí |
+| GET | `/api/search/tiktok?query=anime` | Sí |
+| GET | `/api/download/facebook?url=URL` | Sí |
+| GET | `/api/download/instagram?url=URL` | Sí |
+| GET | `/api/download/twitter?url=URL` | Sí |
+| GET | `/api/download/pinterest?url=URL` | Sí |
+| GET | `/api/download/tiktok?url=URL` | Sí |
+| GET | `/api/download/ytaudio?url=URL` | Sí |
+| GET | `/api/download/ytvideo?url=URL` | Sí |
+
+## 🚀 Render
+
+Build:
+
+```bash
+npm install
+```
+
+Start:
+
+```bash
+npm start
+```
+
+La versión de Node está fijada a la línea **20.x** para evitar cambios inesperados del runtime.
 
 ## 📁 Estructura
 
@@ -38,49 +82,36 @@ YuiApiOfc/
 ├── index.js
 ├── package.json
 ├── render.yaml
+├── middleware/
+│   └── auth.js
 ├── routes/
+│   ├── auth.js
 │   ├── health.js
-│   └── info.js
+│   ├── info.js
+│   ├── ai/
+│   ├── tools/
+│   ├── search/
+│   └── download/
 └── public/
     └── index.html
 ```
 
-## 🚀 Ejecutar
+## ⚠️ Proveedores externos
 
-```bash
-npm install
-npm start
-```
+Algunos módulos de descarga/búsqueda dependen de servicios externos. Si uno de esos servicios cambia o deja de responder, el endpoint devuelve un error controlado sin tumbar toda la API.
 
-La API usa `PORT` cuando está disponible; de lo contrario utiliza `3000`.
+## 🌸 Identidad
 
-## 🔎 Endpoints iniciales
-
-| Método | Ruta | Función |
-|---|---|---|
-| GET | `/` | Página de inicio |
-| GET | `/api` | Información básica |
-| GET | `/api/health` | Estado del servidor |
-| GET | `/api/info` | Información de la API |
-
-## 🛠️ Próxima etapa
-
-Una vez confirmado que esta base funciona correctamente en Render, se pueden añadir módulos como:
-
-- `search/`
-- `download/`
-- `tools/`
-- `ai/`
-- `anime/`
-- autenticación por API key
-- documentación automática
-
-Cada módulo se añadirá de forma independiente para evitar que un endpoint roto impida iniciar toda la API.
+Nombre de proyecto: **YuiAPI OFC**  
+Marca: **Yui**  
+Ecosistema: **YuiBot-MD**  
+Base de datos/ORM: **ninguno obligatorio**  
+Prisma: **no utilizado**
 
 ---
 
 <div align="center">
 
-**YuiAPI OFC · Hecho para YuiBot-MD 🌸**
+**YuiAPI OFC · Todo a nombre de Yui 🌸**
 
 </div>
