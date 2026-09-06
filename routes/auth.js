@@ -1,0 +1,13 @@
+'use strict';
+const express = require('express');
+const router = express.Router();
+router.get('/status', (req, res) => res.json({ status: true, creator: 'YuiAPI', authentication: 'YUI_API_KEY', configured: Boolean(process.env.YUI_API_KEY || process.env.API_KEY), message: 'YuiAPI usa una sola llave de API para mantener la base simple y estable en Render.' }));
+router.post('/register', (req, res) => res.status(410).json({ status: false, creator: 'YuiAPI', error: 'Registro de usuarios no está activo en la base OFC.' }));
+router.post('/login', (req, res) => res.status(410).json({ status: false, creator: 'YuiAPI', error: 'Login de usuarios no está activo en la base OFC. Usa YUI_API_KEY.' }));
+router.get('/me', (req, res) => res.json({ status: true, creator: 'YuiAPI', data: { role: 'api-user', authentication: 'YUI_API_KEY' } }));
+router.get('/stats', (req, res) => res.json({ status: true, creator: 'YuiAPI', users: null, endpoints: 12, mode: 'single-key' }));
+router.get('/dashboard-global', (req, res) => res.json({ status: true, creator: 'YuiAPI', mode: 'single-key', message: 'Dashboard de usuarios desactivado en esta base.' }));
+router.get('/admin/all', (req, res) => res.status(410).json({ status: false, creator: 'YuiAPI', error: 'Gestión de usuarios no está activa en esta base.' }));
+router.post('/admin/update', (req, res) => res.status(410).json({ status: false, creator: 'YuiAPI', error: 'Gestión de usuarios no está activa en esta base.' }));
+router.post('/admin/delete', (req, res) => res.status(410).json({ status: false, creator: 'YuiAPI', error: 'Gestión de usuarios no está activa en esta base.' }));
+module.exports = router;
