@@ -24,18 +24,22 @@ function authHandler(req, res, next) {
 
   if (expected && apiKey === expected) {
     req.apiKey = apiKey;
-    req.apiUser = { id: 'env-admin', username: process.env.YUI_ADMIN_USERNAME || 'Yui', role: 'admin', plan: 'admin', limit: 1000000, source: 'api-key' };
+    req.apiUser = { id: 'env-admin', username: process.env.YUI_ADMIN_USERNAME || 'Yui', email: process.env.YUI_ADMIN_EMAIL || '', role: 'admin', plan: 'admin', limit: 1000000, source: 'api-key' };
     return next();
   }
 
   const token = getJwt(req);
   const secret = process.env.YUI_JWT_SECRET || process.env.JWT_SECRET || '';
-  if (!token || !secret) {
-    return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Autenticación requerida. Usa API key o Bearer token.' });
-  }
+  if (!token || !secret) return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Autenticación requerida. Usa API key o Bearer token.' });
 
   try {
     const payload = jwt.verify(token, secret);
+    if (payload.sub === 'env-admin' && process.env.YUI_ADMIN_EMAIL) {
+      req.apiUser = { id: 'env-admin', username: process.env.YUI_ADMIN_USERNAME || 'Yui', email: process.env.YUI_ADMIN_EMAIL, role: 'admin', plan: 'admin', limit: 1000000, source: 'jwt' };
+      req.authType = 'jwt';
+      return next();
+    }
+
     const user = findUser('id', payload.sub);
     if (!user) return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Sesión inválida.' });
 
@@ -58,14 +62,15 @@ function adminOnly(req, res, next) {
   next();
 }
 
-function countRequest(req) {
-  if (!req.apiUser?.id || req.apiUser.id === 'env-admin') return;
+function countRequest(req, res, next) {
+  if (!req.apiUser?.id || req.apiUser.id === 'env-admin') return next();
   const user = findUser('id', req.apiUser.id);
-  if (!user) return;
+  if (!user) return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Usuario no encontrado.' });
   const today = new Date().toISOString().slice(0, 10);
-  const requestToday = user.lastRequestDate === today ? (user.requestToday || 0) + 1 : 1;
-  if (requestToday > (user.limit || 100)) return;
-  updateUser(user.id, { requestToday, totalRequest: (user.totalRequest || 0) + 1, lastRequestDate: today });
+  const requestToday = user.lastRequestDate === today ? (user.requestToday || 0) : 0;
+  if (requestToday >= (user.limit || 100)) return res.status(429).json({ status: false, creator: 'YuiAPI', error: `Límite diario alcanzado (${user.limit || 100}).` });
+  updateUser(user.id, { requestToday: requestToday + 1, totalRequest: (user.totalRequest || 0) + 1, lastRequestDate: today });
+  next();
 }
 
 module.exports = { authHandler, adminOnly, countRequest, getApiKey, getJwt };
