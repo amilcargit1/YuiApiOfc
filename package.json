@@ -1,0 +1,16 @@
+{
+  "name": "yui-api-ofc",
+  "version": "1.0.0",
+  "description": "YuiAPI OFC - API de herramientas para YuiBot-MD",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
