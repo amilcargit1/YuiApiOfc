@@ -7,8 +7,6 @@ const { findUser, updateUser } = require('../lib/store');
 function getApiKey(req) {
   const header = req.get('x-api-key');
   if (header) return header.trim();
-  const auth = req.get('authorization');
-  if (auth && /^Bearer\s+/i.test(auth)) return auth.replace(/^Bearer\s+/i, '').trim();
   if (req.query.apiKey) return String(req.query.apiKey).trim();
   return '';
 }
@@ -19,21 +17,35 @@ function getJwt(req) {
   return auth.replace(/^Bearer\s+/i, '').trim();
 }
 
+function setAnonymous(req) {
+  req.apiUser = null;
+  req.apiKey = undefined;
+  req.authType = 'anonymous';
+}
+
 function authHandler(req, res, next) {
   const apiKey = getApiKey(req);
-  const hasCredentials = Boolean(apiKey || getJwt(req));
+  const token = getJwt(req);
+  const hasCredentials = Boolean(apiKey || token);
   const expected = process.env.YUI_API_KEY || process.env.API_KEY || '';
 
-  // La API es pública: sin credenciales se permite continuar como invitado.
+  // YuiAPI es pública. Las credenciales son opcionales para endpoints públicos.
   if (!hasCredentials) {
-    req.apiUser = null;
-    req.authType = 'anonymous';
+    setAnonymous(req);
     return next();
   }
 
   if (expected && apiKey === expected) {
     req.apiKey = apiKey;
-    req.apiUser = { id: 'env-admin', username: process.env.YUI_ADMIN_USERNAME || 'Yui', email: process.env.YUI_ADMIN_EMAIL || '', role: 'admin', plan: 'admin', limit: 1000000, source: 'api-key' };
+    req.apiUser = {
+      id: 'env-admin',
+      username: process.env.YUI_ADMIN_USERNAME || 'Yui',
+      email: process.env.YUI_ADMIN_EMAIL || '',
+      role: 'admin',
+      plan: 'admin',
+      limit: 1000000,
+      source: 'api-key'
+    };
     req.authType = 'api-key';
     return next();
   }
@@ -54,32 +66,47 @@ function authHandler(req, res, next) {
     return next();
   }
 
-  const token = getJwt(req);
-  try {
-    const payload = jwt.verify(token, getJwtSecret());
-    if (payload.sub === 'env-admin') {
-      req.apiUser = { id: 'env-admin', username: process.env.YUI_ADMIN_USERNAME || 'Yui', email: process.env.YUI_ADMIN_EMAIL || '', key: process.env.YUI_API_KEY || '', role: 'admin', plan: 'admin', limit: 1000000, source: 'jwt' };
-      req.authType = 'jwt';
-      return next();
-    }
+  if (token) {
+    try {
+      const payload = jwt.verify(token, getJwtSecret());
+      if (payload.sub === 'env-admin') {
+        req.apiUser = {
+          id: 'env-admin',
+          username: process.env.YUI_ADMIN_USERNAME || 'Yui',
+          email: process.env.YUI_ADMIN_EMAIL || '',
+          key: process.env.YUI_API_KEY || '',
+          role: 'admin',
+          plan: 'admin',
+          limit: 1000000,
+          source: 'jwt'
+        };
+        req.authType = 'jwt';
+        return next();
+      }
 
-    const user = findUser('id', payload.sub);
-    if (!user) return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Sesión inválida.' });
-    if (user.vipExpires && new Date() > new Date(user.vipExpires)) {
-      updateUser(user.id, { role: 'user', plan: 'free', limit: 100, vipSince: null, vipExpires: null });
-      user.role = 'user';
-      user.plan = 'free';
-      user.limit = 100;
-      user.vipSince = null;
-      user.vipExpires = null;
+      const user = findUser('id', payload.sub);
+      if (user) {
+        if (user.vipExpires && new Date() > new Date(user.vipExpires)) {
+          updateUser(user.id, { role: 'user', plan: 'free', limit: 100, vipSince: null, vipExpires: null });
+          user.role = 'user';
+          user.plan = 'free';
+          user.limit = 100;
+          user.vipSince = null;
+          user.vipExpires = null;
+        }
+        req.apiKey = user.key;
+        req.apiUser = user;
+        req.authType = 'jwt';
+        return next();
+      }
+    } catch {
+      // Token expirado/inválido: para una API pública se trata como visitante.
+      // Los endpoints privados comprobarán req.apiUser y devolverán 401.
     }
-    req.apiKey = user.key;
-    req.apiUser = user;
-    req.authType = 'jwt';
-    return next();
-  } catch {
-    return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Token o API key inválido.' });
   }
+
+  setAnonymous(req);
+  next();
 }
 
 function adminOnly(req, res, next) {
@@ -88,7 +115,6 @@ function adminOnly(req, res, next) {
 }
 
 function countRequest(req, res, next) {
-  // Los visitantes anónimos pueden usar la API pública sin crear una cuenta.
   if (!req.apiUser?.id || req.apiUser.id === 'env-admin') return next();
   const user = findUser('id', req.apiUser.id);
   if (!user) return res.status(401).json({ status: false, creator: 'YuiAPI', error: 'Usuario no encontrado.' });
