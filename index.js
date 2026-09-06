@@ -8,6 +8,7 @@ const { authHandler, countRequest } = require('./middleware/auth');
 
 const healthRouter = require('./routes/health');
 const infoRouter = require('./routes/info');
+const testRouter = require('./routes/core/test');
 const authRouter = require('./routes/auth');
 const geminiRouter = require('./routes/ai/gemini');
 const qrRouter = require('./routes/tools/qrcode');
@@ -36,9 +37,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.use('/api/health', healthRouter);
 app.use('/api/info', infoRouter);
+app.use('/api/test', testRouter);
 app.use('/api/auth', authRouter);
 
-const protectedRoutes = [
+// Los endpoints de herramientas, búsquedas y descargas son públicos.
+// authHandler solo identifica opcionalmente al usuario para estadísticas/límites.
+const publicRoutes = [
   ['/api/ai/gemini', geminiRouter],
   ['/api/tools/qr', qrRouter],
   ['/api/tools/ssweb', sswebRouter],
@@ -53,24 +57,37 @@ const protectedRoutes = [
   ['/api/download/ytvideo', ytVideoRouter]
 ];
 
-for (const [route, handler] of protectedRoutes) {
+for (const [route, handler] of publicRoutes) {
   app.use(route, authHandler, countRequest, handler);
 }
 
 app.get('/api', (req, res) => {
-  res.json({ success: true, name: 'YuiAPI OFC', creator: 'Yui', version: '1.2.0', status: 'online', uptime: Math.floor((Date.now() - startedAt) / 1000), message: 'YuiAPI está funcionando correctamente.', authentication: ['API key', 'JWT session'] });
+  res.json({
+    status: true,
+    code: 200,
+    creator: 'YuiAPI',
+    message: 'YuiAPI está funcionando correctamente.',
+    data: {
+      name: 'YuiAPI OFC',
+      version: '1.4.0',
+      status: 'online',
+      uptime: Math.floor((Date.now() - startedAt) / 1000),
+      publicApi: true,
+      authentication: ['API key', 'JWT session']
+    }
+  });
 });
 
-app.use((req, res) => res.status(404).json({ success: false, creator: 'YuiAPI', error: 'NOT_FOUND', message: 'Endpoint no encontrado.', path: req.originalUrl }));
+app.use((req, res) => res.status(404).json({ status: false, code: 404, creator: 'YuiAPI', message: 'Endpoint no encontrado.', data: null, path: req.originalUrl }));
 app.use((err, req, res, next) => {
   console.error('[YuiAPI] Error:', err);
   if (res.headersSent) return next(err);
-  res.status(err.status || 500).json({ success: false, creator: 'YuiAPI', error: 'INTERNAL_ERROR', message: 'Error interno del servidor.' });
+  res.status(err.status || 500).json({ status: false, code: err.status || 500, creator: 'YuiAPI', message: 'Error interno del servidor.', data: null });
 });
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`🌸 YuiAPI OFC escuchando en ${HOST}:${PORT}`);
-  console.log('✨ YuiAPI iniciada con registro/login JWT, sin Prisma ni ORM.');
+  console.log('✨ YuiAPI pública, con registro/login opcional y sin Prisma.');
 });
 
 function shutdown(signal) {
