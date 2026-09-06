@@ -50,15 +50,15 @@ const protectedRoutes = [
   ['/api/download/pinterest', pinterestRouter],
   ['/api/download/tiktok', tiktokRouter],
   ['/api/download/ytaudio', ytAudioRouter],
-  ['/api/download/ytvideo', ytVideoRouter],
+  ['/api/download/ytvideo', ytVideoRouter]
 ];
 
 for (const [route, handler] of protectedRoutes) {
-  app.use(route, authHandler, (req, res, next) => { countRequest(req); next(); }, handler);
+  app.use(route, authHandler, countRequest, handler);
 }
 
 app.get('/api', (req, res) => {
-  res.json({ success: true, name: 'YuiAPI OFC', creator: 'Yui', version: '1.1.0', status: 'online', uptime: Math.floor((Date.now() - startedAt) / 1000), message: 'YuiAPI está funcionando correctamente.', authentication: 'API key' });
+  res.json({ success: true, name: 'YuiAPI OFC', creator: 'Yui', version: '1.2.0', status: 'online', uptime: Math.floor((Date.now() - startedAt) / 1000), message: 'YuiAPI está funcionando correctamente.', authentication: ['API key', 'JWT session'] });
 });
 
 app.use((req, res) => res.status(404).json({ success: false, creator: 'YuiAPI', error: 'NOT_FOUND', message: 'Endpoint no encontrado.', path: req.originalUrl }));
@@ -70,7 +70,7 @@ app.use((err, req, res, next) => {
 
 const server = app.listen(PORT, HOST, () => {
   console.log(`🌸 YuiAPI OFC escuchando en ${HOST}:${PORT}`);
-  console.log('✨ Base Yui iniciada sin Prisma ni ORM.');
+  console.log('✨ YuiAPI iniciada con registro/login JWT, sin Prisma ni ORM.');
 });
 
 function shutdown(signal) {
